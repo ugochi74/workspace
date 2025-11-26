@@ -5,7 +5,7 @@ func DigitLen(n, base int) int {
         return -1
     }
       if n < 0 {
-        return -n
+        n = -n
       }
       count := 0
       for n > 0 {
