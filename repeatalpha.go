@@ -18,6 +18,7 @@ RepeatAlpha(s string) string {
             result += string(ch)
         }
 
-    } return result
+    }
+ return result
 }
 
