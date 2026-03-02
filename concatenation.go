@@ -41,6 +41,27 @@ Here are the main methods:
     result := fmt.Sprintf("Hello, %s is %d years old", name, age)
     // result is "Hello, Gopher is 5 years old"
 
-     
+---     
 
-Summary of Best Practices:
+package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func main() {
+    fmt.Println("String Concatenation Tutorial")
+
+    var myString strings.Builder
+    // we can use the WriteString method to append
+    // to our existing strings.Builder string
+    myString.WriteString("Hello ")
+    // here we append to the end of our string
+    myString.WriteString("World")
+    
+    // print out our concatenated string
+    fmt.Println(myString.String())
+
+}
+
