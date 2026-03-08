@@ -1,56 +1,164 @@
 package main
 
 import (
-    "strconv"
-    "strings"
-    "unicode"
+	"os"
+	"strconv"
+	"strings"
 )
 
-func hexToDec(word string) string {
-    val, err := strconv.ParseInt(word, 16, 64)
-    if err != nil {
-        return word
-    }
-    return strconv.FormatInt(val, 10)
+func ReadFile(filename string) (string, error) {
+
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), nil
 }
 
-func binToDec(word string) string {
-    val, err := strconv.ParseInt(word, 2, 64)
-    if err != nil {
-        return word
-    }
-    return strconv.FormatInt(val, 10)
+func WriteFile(filename string, content string) error {
+
+	return os.WriteFile(filename, []byte(content), 0644)
 }
 
-func applyCase(result []string, mode string, command string) []string {
-    count := 1
-    if strings.Contains(command, ",") {
-        parts := strings.Split(command, ",")
-        countStr := strings.Trim(parts[1], ")")
-        c, err := strconv.Atoi(countStr)
-        if err == nil {
-            count = c
-        }
-    }
+func ConvertNumbers(text string) string {
 
-    for i := len(result) - count; i < len(result); i++ {
-        if i >= 0 {
-            switch mode {
-            case "up":
-                result[i] = strings.ToUpper(result[i])
-            case "low":
-                result[i] = strings.ToLower(result[i])
-            case "cap":
-                runes := []rune(result[i])
-                if len(runes) > 0 {
-                    runes[0] = unicode.ToUpper(runes[0])
-                    for j := 1; j < len(runes); j++ {
-                        runes[j] = unicode.ToLower(runes[j])
-                    }
-                    result[i] = string(runes)
-                }
-            }
-        }
-    }
-    return result
+	words := strings.Fields(text)
+
+	for i := 0; i < len(words); i++ {
+
+		if words[i] == "(hex)" && i > 0 {
+
+			num, err := strconv.ParseInt(words[i-1], 16, 64)
+			if err == nil {
+				words[i-1] = strconv.FormatInt(num, 10)
+			}
+
+			words = append(words[:i], words[i+1:]...)
+			i--
+		}
+
+		if words[i] == "(bin)" && i > 0 {
+
+			num, err := strconv.ParseInt(words[i-1], 2, 64)
+			if err == nil {
+				words[i-1] = strconv.FormatInt(num, 10)
+			}
+
+			words = append(words[:i], words[i+1:]...)
+			i--
+		}
+	}
+
+	return strings.Join(words, " ")
+}
+
+func ApplyCase(text string) string {
+
+	words := strings.Fields(text)
+
+	for i := 0; i < len(words); i++ {
+
+		// Handle (up) (low) (cap)
+		if words[i] == "(up)" || words[i] == "(low)" || words[i] == "(cap)" {
+
+			if i > 0 {
+				applyCase(&words[i-1], words[i])
+			}
+
+			// remove modifier
+			words = append(words[:i], words[i+1:]...)
+			i--
+			continue
+		}
+
+		// Handle numbered modifiers (up, 2) (low, 3) (cap, 4)
+		if strings.HasPrefix(words[i], "(up,") ||
+			strings.HasPrefix(words[i], "(low,") ||
+			strings.HasPrefix(words[i], "(cap,") {
+
+			if i+1 < len(words) {
+
+				// extract command
+				command := strings.TrimPrefix(words[i], "(")
+				command = strings.TrimSuffix(command, ",")
+
+				// extract number
+				number := strings.TrimSuffix(words[i+1], ")")
+
+				n, err := strconv.Atoi(number)
+				if err == nil {
+
+					for j := 1; j <= n && i-j >= 0; j++ {
+						applyCase(&words[i-j], "("+command+")")
+					}
+				}
+
+				// remove "(up," and "2)"
+				words = append(words[:i], words[i+2:]...)
+				i--
+			}
+		}
+	}
+
+	return strings.Join(words, " ")
+}
+
+func applyCase(word *string, command string) {
+
+	switch command {
+
+	case "(up)":
+		*word = strings.ToUpper(*word)
+
+	case "(low)":
+		*word = strings.ToLower(*word)
+
+	case "(cap)":
+		if len(*word) > 0 {
+			w := *word
+			*word = strings.ToUpper(string(w[0])) + strings.ToLower(w[1:])
+		}
+	}
+}
+
+func FixPunctuation(text string) string {
+
+	text = strings.ReplaceAll(text, " ,", ",")
+	text = strings.ReplaceAll(text, " .", ".")
+	text = strings.ReplaceAll(text, " !", "!")
+	text = strings.ReplaceAll(text, " ?", "?")
+	text = strings.ReplaceAll(text, " :", ":")
+	text = strings.ReplaceAll(text, " ;", ";")
+
+	return text
+}
+
+func FixArticles(text string) string {
+
+	words := strings.Fields(text)
+
+	for i := 0; i < len(words)-1; i++ {
+
+		if strings.ToLower(words[i]) == "a" {
+
+			next := strings.ToLower(words[i+1])
+
+			if strings.HasPrefix(next, "a") ||
+				strings.HasPrefix(next, "e") ||
+				strings.HasPrefix(next, "i") ||
+				strings.HasPrefix(next, "o") ||
+				strings.HasPrefix(next, "u") ||
+				strings.HasPrefix(next, "h") {
+
+				if words[i] == "A" {
+					words[i] = "An"
+				} else {
+					words[i] = "an"
+				}
+			}
+		}
+	}
+
+	return strings.Join(words, " ")
 }
