@@ -143,3 +143,32 @@ func hexToDecimal(s string) (int64, error) {
 	return strconv.ParseInt(s, 16, 64)
 }
 
+
+
+
+
+
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func capitalizePreviousN(word []string, n int) []string {
+	for i := 0; i < len(word); i++ {
+		if i < n {
+			word[i] = strings.ToUpper(string(word[i][:1])) + strings.ToLower(string(word[i][1:]))
+		} else {
+			word[i] = strings.ToLower(string(word[i]))
+		}
+	}
+	return word
+}
+
+func main() {
+	var res = []string{"hEllo", "how", "ARE", "yOu"}
+	fmt.Println(capitalizePreviousN(res, 3))
+}
+
+
