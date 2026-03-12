@@ -51,3 +51,95 @@ func main() {
 	fmt.Println(toLower("hELLO"))
 	fmt.Println(toUpper("world"))
 }
+
+
+
+
+
+
+package main
+
+import (
+    "fmt"
+    "strings"
+    
+    )
+    
+func Capitalize(word []string, n int) []string {
+    //modified := strings.ReplaceAll(s, " ,", ",")
+    //text := strings.ToLower(s)
+    //return strings.Title(text)
+   // word = strings.ToLower(word[:(len(word)-1)])
+   for i := 0; i < len(word) && i < n; i++  {
+       word[i] = strings.ToUpper(string(word[i][:1])) + strings.ToLower(string(word[i][1:]))
+   }
+  // text := strings.Join(word, " ")
+   return word
+}
+
+func main() {
+    fmt.Println(AToAn("A apple!"))
+}
+
+func toLower(word string) string {
+    return strings.ToLower(word)
+}
+
+func AToAn(s string) string {
+    text := strings.Fields(s)
+    for i := 0; i < len(text)-1; i++ {
+    first := text[i+1]
+    slice := first[0]
+    boolean := strings.ContainsAny(string(slice), "aeiouhAEIOUH")
+    if text[i] == "a" && boolean == true {
+        text[i] = "an"
+    } else if text[i] == "A" && boolean == true{
+        text[i] = "An"
+    }
+    }
+   str := strings.Join(text, " ")
+    return str
+}
+
+
+
+
+
+
+
+package main
+
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
+
+func capitalizePreviousN(word []string, n int) []string {
+	for i := 0; i < len(word) && i < n; i++ {
+		if i == 2 {
+			continue
+		}
+
+		word[i] = strings.ToUpper(word[i])
+	}
+	return word
+
+}
+
+func main() {
+	var res = []string{"i", "am", "excited", "confidence"}
+	fmt.Println(capitalizePreviousN(res, 4))
+
+}
+
+func capitalize(s string) string {
+	text := strings.ToUpper(s)
+	return strings.Title(text)
+    strings.ContainsAny(s, chars)
+}
+
+func hexToDecimal(s string) (int64, error) {
+	return strconv.ParseInt(s, 16, 64)
+}
+
