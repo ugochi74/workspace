@@ -1,0 +1,24 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func aToAn(s string) string {
+	text := strings.Fields(s)
+	for i := 0; i < len(text)-1; i++ {
+		word := text[i+1]
+		first := string(word[0])
+		if text[i] == "a" && strings.ContainsAny(first, "aeiouhAEIOUH") {
+			text[i] = "an"
+		} else if text[i] == "A" && strings.ContainsAny(first, "aeiouhAEIOUH") {
+			text[i] = "An"
+		}
+	}
+	return strings.Join(text, " ")
+}
+
+func main() {
+	fmt.Println(aToAn("There it was A Apple. A honest man. A book"))
+}
